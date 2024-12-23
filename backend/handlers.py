@@ -1,19 +1,14 @@
 import json
-import os
 from typing import Any
-import openai
-from backend.models import ChatMessage, ChatRole, OpenAIModel, ToolChoice
+import backend.metering
+from backend.models import ChatRole, Models, ToolChoice
 from backend.tools import TOOL_REGISTRY, TOOLS_DEFINITIONS
-from dotenv import load_dotenv
-from openai.types.chat import (
-    ChatCompletionMessageToolCall,
+from litellm import (
     ChatCompletionToolParam,
-    ChatCompletionMessage,
+    ChatCompletionMessageToolCall,
+    Message,
+    completion,
 )
-
-load_dotenv()
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def execute_tool_call(tool_call: ChatCompletionMessageToolCall) -> Any:
@@ -31,17 +26,17 @@ def execute_tool_call(tool_call: ChatCompletionMessageToolCall) -> Any:
 
 def handle_user_query(
     user_query: str,
-    messages: list[ChatMessage] | None = None,
-    model: OpenAIModel = OpenAIModel.DEFAULT,
+    messages: list[Message] | None = None,
+    model: Models = Models.DEFAULT,
     tools: list[ChatCompletionToolParam] | None = TOOLS_DEFINITIONS,
     tool_choice: ToolChoice = ToolChoice.AUTO,
-) -> list[ChatMessage | ChatCompletionMessage]:
+) -> list[Message]:
     """Handle a user's query by interacting with OpenAI and registered tools."""
     messages = messages or []
-    messages.append(ChatMessage(content=user_query, role=ChatRole.USER.value))
+    messages.append(Message(content=user_query, role=ChatRole.USER.value))
 
     while True:
-        response = openai.chat.completions.create(
+        response = completion(
             model=model.value,
             messages=messages,
             tools=tools,
@@ -55,7 +50,7 @@ def handle_user_query(
                     tool_result = execute_tool_call(tool_call)
                     # Append the assistant's message with the tool call
                     messages.append(
-                        ChatMessage(
+                        Message(
                             role=ChatRole.ASSISTANT.value,
                             tool_calls=[tool_call],
                             content=None,
@@ -63,7 +58,7 @@ def handle_user_query(
                     )
                     # Append the tool result
                     messages.append(
-                        ChatMessage(
+                        Message(
                             role=ChatRole.TOOL.value,
                             tool_call_id=tool_call.id,
                             content=json.dumps(tool_result),
@@ -71,7 +66,7 @@ def handle_user_query(
                     )
                 except Exception as e:
                     messages.append(
-                        ChatMessage(
+                        Message(
                             role=ChatRole.ASSISTANT.value,
                             content=(
                                 "An error occurred while executing "

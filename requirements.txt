@@ -4,3 +4,4 @@ ruff
 duckduckgo_search
 unstructured[pdf]
 streamlit
+litellm

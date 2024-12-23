@@ -1,6 +1,5 @@
+from litellm import ChatCompletionToolParam, ChatCompletionToolParamFunctionChunk
 import requests
-from openai.types.shared_params import FunctionDefinition
-from openai.types.chat import ChatCompletionToolParam
 from backend.models import Tool, ToolName, ToolType
 import subprocess
 from duckduckgo_search import DDGS
@@ -22,7 +21,7 @@ def fetch_wikipedia_summary(topic: str) -> dict:
     return {"topic": topic, "summary": "Error fetching summary.", "url": ""}
 
 
-fetch_wikipedia_summary_definition = FunctionDefinition(
+fetch_wikipedia_summary_definition = ChatCompletionToolParamFunctionChunk(
     name=ToolName.FETCH_WIKIPEDIA_SUMMARY.value,
     description="Fetch a summary of a topic from Wikipedia.",
     parameters=dict(
@@ -33,7 +32,6 @@ fetch_wikipedia_summary_definition = FunctionDefinition(
         required=["topic"],
         additionalProperties=False,
     ),
-    strict=True,
 )
 
 
@@ -57,7 +55,7 @@ def execute_python_script(code: str, timeout: int = 5) -> dict:
         return {"stdout": "", "stderr": str(e), "success": False}
 
 
-execute_python_definition = FunctionDefinition(
+execute_python_definition = ChatCompletionToolParamFunctionChunk(
     name=ToolName.EXECUTE_PYTHON.value,
     description=(
         "Execute a Python script and return the output. "
@@ -73,7 +71,6 @@ execute_python_definition = FunctionDefinition(
         required=["code"],
         additionalProperties=False,
     ),
-    strict=True,
 )
 
 
@@ -97,7 +94,7 @@ def browse_web(url: str, timeout: int = 10) -> dict:
         }
 
 
-browse_web_definition = FunctionDefinition(
+browse_web_definition = ChatCompletionToolParamFunctionChunk(
     name=ToolName.BROWSE_WEB.value,
     description="Fetch content from a web page, open links or execute api requests",
     parameters=dict(
@@ -108,7 +105,6 @@ browse_web_definition = FunctionDefinition(
         required=["url"],
         additionalProperties=False,
     ),
-    strict=True,
 )
 
 
@@ -122,7 +118,7 @@ def search_web(query: str, num_results: int = 5) -> dict:
         return {"query": query, "results": [], "success": False, "error": str(e)}
 
 
-search_web_definition = FunctionDefinition(
+search_web_definition = ChatCompletionToolParamFunctionChunk(
     name=ToolName.SEARCH_WEB.value,
     description=(
         "Search the web using a search engine."
@@ -137,7 +133,6 @@ search_web_definition = FunctionDefinition(
         required=["query"],
         additionalProperties=False,
     ),
-    strict=True,
 )
 
 
@@ -159,7 +154,7 @@ def parse_online_pdf(url: str) -> dict:
         return {"url": url, "content": f"Error parsing PDF: {str(e)}", "success": False}
 
 
-parse_pdf_definition = FunctionDefinition(
+parse_pdf_definition = ChatCompletionToolParamFunctionChunk(
     name=ToolName.PARSE_ONLINE_PDF.value,
     description="Parse and extract text content from an online PDF file.",
     parameters=dict(
@@ -173,7 +168,6 @@ parse_pdf_definition = FunctionDefinition(
         required=["url"],
         additionalProperties=False,
     ),
-    strict=True,
 )
 
 

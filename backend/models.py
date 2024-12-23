@@ -1,15 +1,15 @@
 from enum import StrEnum
 from typing import Callable
-from openai.types.chat import ChatCompletionToolParam, ChatCompletionMessageToolCall
-from openai import BaseModel
+from litellm import ChatCompletionToolParam
+from pydantic import BaseModel
 
 
-class OpenAIModel(StrEnum):
-    O_1 = "o1"
-    O_1_MINI = "o1-mini"
-    GPT_4 = "gpt-4"
-    GPT_4_O = "gpt-4o"
-    GPT_4_O_MINI = "gpt-4o-mini"
+class Models(StrEnum):
+    O_1 = "openai/o1"
+    O_1_MINI = "openai/o1-mini"
+    GPT_4 = "openai/gpt-4"
+    GPT_4_O = "openai/gpt-4o"
+    GPT_4_O_MINI = "openai/gpt-4o-mini"
     DEFAULT = GPT_4_O_MINI
 
 
@@ -41,9 +41,3 @@ class Tool(BaseModel):
     name: ToolName
     implementation: Callable
     definition: ChatCompletionToolParam
-
-
-class ChatMessage(BaseModel):
-    role: str | None = None
-    content: str | None = None
-    tool_calls: list[ChatCompletionMessageToolCall] | None = None
