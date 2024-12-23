@@ -1,6 +1,6 @@
 from enum import StrEnum
 from typing import Callable
-from openai.types.chat import ChatCompletionToolParam
+from openai.types.chat import ChatCompletionToolParam, ChatCompletionMessageToolCall
 from openai import BaseModel
 
 
@@ -41,3 +41,9 @@ class Tool(BaseModel):
     name: ToolName
     implementation: Callable
     definition: ChatCompletionToolParam
+
+
+class ChatMessage(BaseModel):
+    role: str | None = None
+    content: str | None = None
+    tool_calls: list[ChatCompletionMessageToolCall] | None = None

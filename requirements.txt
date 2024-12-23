@@ -3,3 +3,4 @@ python-dotenv
 ruff
 duckduckgo_search
 unstructured[pdf]
+streamlit

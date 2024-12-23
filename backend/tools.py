@@ -1,7 +1,7 @@
 import requests
 from openai.types.shared_params import FunctionDefinition
 from openai.types.chat import ChatCompletionToolParam
-from app.models import Tool, ToolName, ToolType
+from backend.models import Tool, ToolName, ToolType
 import subprocess
 from duckduckgo_search import DDGS
 import io
@@ -148,23 +148,16 @@ def parse_online_pdf(url: str) -> dict:
         response = requests.get(url)
         response.raise_for_status()
         pdf_stream = io.BytesIO(response.content)
-        
+
         # Parse the PDF
         elements = partition_pdf(file=pdf_stream)
         # Convert elements to text and join them
         text_content = "\n".join([str(element) for element in elements])
-        
-        return {
-            "url": url,
-            "content": text_content,
-            "success": True
-        }
+
+        return {"url": url, "content": text_content, "success": True}
     except Exception as e:
-        return {
-            "url": url,
-            "content": f"Error parsing PDF: {str(e)}",
-            "success": False
-        }
+        return {"url": url, "content": f"Error parsing PDF: {str(e)}", "success": False}
+
 
 parse_pdf_definition = FunctionDefinition(
     name=ToolName.PARSE_ONLINE_PDF.value,
@@ -172,7 +165,10 @@ parse_pdf_definition = FunctionDefinition(
     parameters=dict(
         type="object",
         properties={
-            "url": {"type": "string", "description": "The URL of the PDF file to parse"},
+            "url": {
+                "type": "string",
+                "description": "The URL of the PDF file to parse",
+            },
         },
         required=["url"],
         additionalProperties=False,
